@@ -64,46 +64,7 @@ orienteering-cpp-test/
 - 中身は空
 - 実行後、best_course.jsonとfitness_history.csvが作られる。
 
-## 環境構築 + ビルド方法
 
-### リポジトリの取得（git clone）※ macOS / Windows 共通
-
-1. **作業用フォルダをローカルに作る**
-
-   プロジェクトを置きたい場所に、任意の名前でフォルダを作る（Finder / エクスプローラーで作ってもよい）。
-   ターミナル（macOS）/ コマンドプロンプト（Windows）で作る場合：
-   ```bash
-   mkdir competition2026      # 好きな名前・場所でよい
-   cd competition2026         # 作ったフォルダに移動
-   ```
-
-2. **リポジトリをクローンする**
-
-   上で移動した `competition2026` フォルダの中で：
-   ```bash
-   git clone https://github.com/nhjnhjnhj/orienteering-cpp-test.git
-   ```
-
-### macOS（VSCode + C/C++拡張）
-
-1. **必要なツール**
-   - Visual Studio Code
-   - VSCode 拡張機能：
-     - `C/C++`（Microsoft 製、IntelliSense 用）
-     - `C/C++ Extension Pack`（推奨）
-   > 注：Gitを使えない人はコンパイラのインストールが必要
-
-2. **プロジェクトを開く**
-   - **方法A：ドラッグ&ドロップ**
-     Finder で `orienteering-cpp-test` フォルダを、VSCode のウィンドウにドラッグ&ドロップする。
-   - **方法B：メニューから開く**
-     VSCode のメニュー `File` →「`Open Folder...`（フォルダを開く）」→ `orienteering-cpp-test ` フォルダを選択する。
-
-3. **ビルド & 実行（ターミナル経由）**
-   - VSCode 統合ターミナル（`Ctrl + ` ` で開く）で：
-   ```bash
-   make run        # ビルドして実行
-   ```
 
 ### Windows（Visual Studio）
 
