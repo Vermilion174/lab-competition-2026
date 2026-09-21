@@ -9,6 +9,15 @@ Chromosome（染色体クラス）は、整数型の1次元配列
 →突然変異はビット反転、要素入替だけで表現できる！！！
 
 
+＜autogen.cppについて＞
+landmarkを任意個生成し、landmarkの個数による適応度の変化をみるためのプログラム
+autogen.hをincludeしている
+1.autogen.cとautogen.hをnodes.csvと同じ階層に移動する
+2.配布されたmain.cppの122行目　で指定されているファイル名を"landmarks.csv"から"autogen.csv"に変更
+3.autogen.cをコンパイルする
+4.main.cppを実行し、オリエンテーリングコース可視化ツールで結果を確認する
+
+
 ＜ga.h＞
 
 &
