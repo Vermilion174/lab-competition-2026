@@ -1,4 +1,4 @@
-#ifndef CONST_H
+﻿#ifndef CONST_H
 #define CONST_H
 
 #include <cfloat>
@@ -41,12 +41,32 @@ constexpr double W_ROUTE = 0.15;
 // GA のハイパーパラメータ
 // ============================================================
 constexpr int    POP_SIZE        = 200;   // 個体数
-constexpr int    N_GEN           = 100;   // 世代数
+constexpr int    N_GEN           = 500;   // 世代数
 constexpr double PROB_BIT        = 0.02;  // 選択パートのビット反転確率
 constexpr double PROB_SWAP       = 0.10;  // 順序パートのスワップ確率
-constexpr int    TOURNAMENT_SIZE = 5;     // トーナメント選択のサイズ
 
 constexpr unsigned int RANDOM_SEED = 42;
+
+// ============================================================
+// 切り替えタイミング用定数（事前計算用パラメータ）
+// ============================================================
+// 親選択手法の切り替え閾値
+constexpr int SELECT_METHOD_SWITCH_GEN = static_cast<int>(N_GEN * 1.0);
+
+// 選択パートの交叉手法切り替え閾値
+constexpr int SELECT_SWITCH_GEN = static_cast<int>(N_GEN * 0.60);
+
+// 順序パートの交叉手法切り替え閾値
+constexpr int ORDER_SWITCH_GEN_1 = static_cast<int>(N_GEN * 5.0);
+constexpr int ORDER_SWITCH_GEN_2 = static_cast<int>(N_GEN * 1.0);
+
+// 動的トーナメントサイズの切り替え閾値とサイズ定義 (3段階)
+constexpr int TOURNAMENT_SWITCH_GEN_1 = static_cast<int>(N_GEN * 0.40); // 段階1 -> 2 (例: 40%)
+constexpr int TOURNAMENT_SWITCH_GEN_2 = static_cast<int>(N_GEN * 0.80); // 段階2 -> 3 (例: 80%)
+
+constexpr int TOURNAMENT_SIZE_1 = 2; // 序盤：低淘汰圧（多様性保持）
+constexpr int TOURNAMENT_SIZE_2 = 3; // 中盤：中淘汰圧（バランス）
+constexpr int TOURNAMENT_SIZE_3 = 5; // 終盤：高淘汰圧（高速収束）
 
 // ============================================================
 // 物理定数
