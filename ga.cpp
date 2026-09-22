@@ -1,4 +1,4 @@
-#include "ga.h"
+﻿#include "ga.h"
 #include "const.h"
 
 #include <algorithm>
@@ -72,7 +72,7 @@ std::pair<Chromosome, Chromosome> crossover(
 
     std::uniform_real_distribution<double> ureal(0.0, 1.0);
 
-    // 選択パート：各ビットを 50% で入れ替え
+    // 選択パート：一様交叉（各ビットを 50% で入れ替え）
     for (int i = 0; i < N; ++i) {
         if (ureal(rng) < 0.5) {
             c1[i] = parent1[i];
@@ -82,6 +82,9 @@ std::pair<Chromosome, Chromosome> crossover(
             c2[i] = parent1[i];
         }
     }
+
+
+
 
     // 順序パート：OX（順序交叉）
     std::uniform_int_distribution<int> dist_cut(0, MAX_CONTROLS);
@@ -114,6 +117,51 @@ std::pair<Chromosome, Chromosome> crossover(
     ox_fill(c2, parent2, parent1);
 
     return {c1, c2};
+}
+
+// 順序パート：CX（循環交叉）
+void cycle_crossover(
+    const Chromosome& parent1,
+    const Chromosome& parent2,
+    int N,
+    Chromosome& child1,
+    Chromosome& child2)
+{
+    const int total_size = static_cast<int>(parent1.size());
+    const int max_controls = total_size - N;
+
+    child1 = parent1;
+    child2 = parent2;
+
+    // 後半パート用の訪問済みフラグと親2の値の逆引きテーブル
+    std::vector<bool> visited(max_controls, false);
+    std::vector<int> val_to_pos2(max_controls);
+    for (int i = 0; i < max_controls; ++i) {
+        val_to_pos2[parent2[N + i]] = i;
+    }
+
+    int cycle_count = 0;
+
+    // サイクル検出と値の差し替え処理
+    for (int start_pos = 0; start_pos < max_controls; ++start_pos) {
+        if (visited[start_pos]) continue;
+
+        cycle_count++;
+        int curr = start_pos;
+
+        while (!visited[curr]) {
+            visited[curr] = true;
+
+            // 偶数番目のサイクルの場合、親1と親2の要素を入れ替える
+            if (cycle_count % 2 == 0) {
+                child1[N + curr] = parent2[N + curr];
+                child2[N + curr] = parent1[N + curr];
+            }
+
+            // parent1[N + curr] と同じ値を持つ parent2 の位置へ移動
+            curr = val_to_pos2[parent1[N + curr]];
+        }
+    }
 }
 
 // ============================================================
@@ -181,6 +229,7 @@ GAResult run_ga(
         while (static_cast<int>(next_pop.size()) < POP_SIZE) {
             const Chromosome& p1 = tournament_select(population, fitnesses, rng);
             const Chromosome& p2 = tournament_select(population, fitnesses, rng);
+            std::pair<Chromosome, Chromosome> children;
             auto children = crossover(p1, p2, N, rng);
             mutate(children.first,  N, rng);
             mutate(children.second, N, rng);

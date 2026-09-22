@@ -119,7 +119,7 @@ int main() {
     try {
         std::cout << "データを読み込み中..." << std::endl;
 
-        auto landmarks = load_landmarks(DATA_DIR + "/autogen.csv");
+        auto landmarks = load_landmarks(DATA_DIR + "/landmarks.csv");
         auto nodes     = load_nodes    (DATA_DIR + "/nodes.csv");
         auto edges     = load_edges    (DATA_DIR + "/edges.csv");
         auto gate      = load_gate     (DATA_DIR + "/seimon.csv");
