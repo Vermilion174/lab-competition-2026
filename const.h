@@ -61,12 +61,12 @@ constexpr int ORDER_SWITCH_GEN_1 = static_cast<int>(N_GEN * 5.0);
 constexpr int ORDER_SWITCH_GEN_2 = static_cast<int>(N_GEN * 1.0);
 
 // 動的トーナメントサイズの切り替え閾値とサイズ定義 (3段階)
-constexpr int TOURNAMENT_SWITCH_GEN_1 = static_cast<int>(N_GEN * 0.40); // 段階1 -> 2 (例: 40%)
-constexpr int TOURNAMENT_SWITCH_GEN_2 = static_cast<int>(N_GEN * 0.80); // 段階2 -> 3 (例: 80%)
+constexpr int TOURNAMENT_SWITCH_GEN_1 = static_cast<int>(N_GEN * 0.40);
+constexpr int TOURNAMENT_SWITCH_GEN_2 = static_cast<int>(N_GEN * 0.80);
 
 constexpr int TOURNAMENT_SIZE_1 = 2; // 序盤：低淘汰圧（多様性保持）
 constexpr int TOURNAMENT_SIZE_2 = 3; // 中盤：中淘汰圧（バランス）
-constexpr int TOURNAMENT_SIZE_3 = 5; // 終盤：高淘汰圧（高速収束）
+constexpr int TOURNAMENT_SIZE_3 = 4; // 終盤：高淘汰圧（高速収束）
 
 // ============================================================
 // 物理定数
