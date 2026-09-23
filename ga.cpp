@@ -13,11 +13,13 @@ namespace orienteering {
     // 個体生成
     // ============================================================
     Chromosome create_random_chromosome(int N, RNG& rng) {
+        // 選択するコントロール数の決定
         std::uniform_int_distribution<int> dist_n(MIN_CONTROLS, MAX_CONTROLS);
         int n_select = dist_n(rng);
 
         Chromosome chrom(N + MAX_CONTROLS, 0);
 
+        // ランドマーク選択ビットのランダム設定
         std::vector<int> indices(N);
         std::iota(indices.begin(), indices.end(), 0);
         std::shuffle(indices.begin(), indices.end(), rng);
@@ -25,6 +27,7 @@ namespace orienteering {
             chrom[indices[i]] = 1;
         }
 
+        // 訪問順序遺伝子のランダム設定
         std::vector<int> order(MAX_CONTROLS);
         std::iota(order.begin(), order.end(), 0);
         std::shuffle(order.begin(), order.end(), rng);
@@ -38,7 +41,7 @@ namespace orienteering {
     // 親選択
     // ============================================================
 
-    // 定常トーナメント選択（互換性のために保持）
+    // 定常トーナメント選択
     const Chromosome& tournament_select(
         const std::vector<Chromosome>& population,
         const std::vector<double>& fitnesses,
@@ -57,7 +60,7 @@ namespace orienteering {
         return population[best];
     }
 
-    // 動的トーナメント選択（世代数・動的閾値に対応）
+    // 世代数に応じた動的トーナメント選択
     const Chromosome& select_parent(
         const std::vector<Chromosome>& population,
         const std::vector<double>& fitnesses,
@@ -66,6 +69,7 @@ namespace orienteering {
         int                            t_switch_2,
         RNG& rng)
     {
+        // 世代進行に伴うトーナメントサイズ設定
         int k = TOURNAMENT_SIZE_1;
         if (current_gen >= t_switch_2) {
             k = TOURNAMENT_SIZE_3;
@@ -88,9 +92,10 @@ namespace orienteering {
     }
 
     // ============================================================
-    // 交叉（Crossover）アルゴリズム群
+    // 交叉アルゴリズム群
     // ============================================================
 
+    // 一様交叉
     void uniform_crossover_selection(
         const Chromosome& p1,
         const Chromosome& p2,
@@ -114,6 +119,7 @@ namespace orienteering {
         }
     }
 
+    // 一点交叉
     void one_point_crossover_selection(
         const Chromosome& p1,
         const Chromosome& p2,
@@ -133,6 +139,7 @@ namespace orienteering {
         }
     }
 
+    // 順序交叉
     void order_crossover(
         const Chromosome& p1,
         const Chromosome& p2,
@@ -149,6 +156,7 @@ namespace orienteering {
         int b = dist_cut(rng);
         if (a > b) std::swap(a, b);
 
+        // 部分区間の複製と残りの順序充填
         auto ox_fill = [&](Chromosome& child, const Chromosome& p_donor, const Chromosome& p_filler) {
             std::vector<char> used(MAX_CONTROLS, 0);
 
@@ -172,6 +180,7 @@ namespace orienteering {
         ox_fill(c2_out, p2, p1);
     }
 
+    // 循環交叉
     void cycle_crossover(
         const Chromosome& p1,
         const Chromosome& p2,
@@ -188,6 +197,7 @@ namespace orienteering {
             val_to_pos2[p2[N + i]] = i;
         }
 
+        // サイクルの抽出と交互割り当て
         int cycle_count = 0;
         for (int start_pos = 0; start_pos < MAX_CONTROLS; ++start_pos) {
             if (visited[start_pos]) continue;
@@ -206,6 +216,7 @@ namespace orienteering {
         }
     }
 
+    // 部分経路（サブツア）入れ替え交叉
     void subtour_exchange_crossover(
         const Chromosome& p1,
         const Chromosome& p2,
@@ -224,6 +235,7 @@ namespace orienteering {
 
         std::vector<SubtourMatch> matches;
 
+        // 共通要素を持つ部分経路の検索
         for (int len = 2; len < MAX_CONTROLS; ++len) {
             for (int i = 0; i <= MAX_CONTROLS - len; ++i) {
                 std::unordered_set<int> set1;
@@ -256,6 +268,7 @@ namespace orienteering {
             }
         }
 
+        // 一致部分の交換処理
         if (!matches.empty()) {
             std::uniform_int_distribution<int> dist_m(0, static_cast<int>(matches.size()) - 1);
             const auto& m = matches[dist_m(rng)];
@@ -272,7 +285,7 @@ namespace orienteering {
         }
     }
 
-    // 基本交叉（引数4つのオーバーロード / 一様交叉 + OX）
+    // 基本交叉
     std::pair<Chromosome, Chromosome> crossover(
         const Chromosome& parent1,
         const Chromosome& parent2,
@@ -300,7 +313,7 @@ namespace orienteering {
         return { c1, c2 };
     }
 
-    // 動的切り替え交叉（メイン処理用）
+    // 動的切り替え交叉
     std::pair<Chromosome, Chromosome> crossover(
         const Chromosome& parent1,
         const Chromosome& parent2,
@@ -346,10 +359,10 @@ namespace orienteering {
     }
 
     // ============================================================
-    // 突然変異（Mutation）
+    // 突然変異
     // ============================================================
 
-    // 基本突然変異（引数3つのオーバーロード / 確率 PROB_BIT, PROB_SWAP 使用）
+    // 基本突然変異
     void mutate(Chromosome& chromosome, int N, RNG& rng) {
         mutate(chromosome, N, PROB_BIT, PROB_SWAP, rng);
     }
@@ -364,14 +377,14 @@ namespace orienteering {
     {
         std::uniform_real_distribution<double> ureal(0.0, 1.0);
 
-        // 1. 選択遺伝子のビット反転 (1/N の確率)
+        // 選択ビットの反転
         for (int i = 0; i < N; ++i) {
             if (ureal(rng) < prob_bit) {
                 chromosome[i] = 1 - chromosome[i];
             }
         }
 
-        // 2. 順序遺伝子のスワップ（各位置において prob_swap の確率で他要素と交換）
+        // 順序遺伝子の入れ替え
         std::uniform_int_distribution<int> dist(N, N + MAX_CONTROLS - 1);
         for (int i = N; i < N + MAX_CONTROLS; ++i) {
             if (ureal(rng) < prob_swap) {
@@ -383,25 +396,75 @@ namespace orienteering {
             }
         }
     }
+    /*
+    // ============================================================
+    // 局所探索：山登り法
+    // ============================================================
+    Chromosome hill_climbing(
+        Chromosome chrom,
+        const std::vector<Landmark>& landmarks,
+        const PathCache& path_cache,
+        long long gate_node,
+        int max_evals)
+    {
+        const int N = static_cast<int>(landmarks.size());
+
+        // 有効な順序長の算出
+        int active_len = 0;
+        for (int i = 0; i < N; ++i) {
+            if (chrom[i] == 1) active_len++;
+        }
+
+        if (active_len < 2) return chrom;
+
+        active_len = std::min(active_len, MAX_CONTROLS);
+
+        double current_fit = evaluate(chrom, landmarks, path_cache, gate_node).fitness;
+        int evals = 0;
+        bool improved = true;
+
+        // 2-opt近傍探索による最適化
+        while (improved && evals < max_evals) {
+            improved = false;
+
+            for (int i = 0; i < active_len - 1 && !improved && evals < max_evals; ++i) {
+                for (int j = i + 1; j < active_len && !improved && evals < max_evals; ++j) {
+                    Chromosome neighbor = chrom;
+
+                    std::reverse(neighbor.begin() + N + i, neighbor.begin() + N + j + 1);
+
+                    double neighbor_fit = evaluate(neighbor, landmarks, path_cache, gate_node).fitness;
+                    evals++;
+
+                    if (neighbor_fit < current_fit) {
+                        chrom = std::move(neighbor);
+                        current_fit = neighbor_fit;
+                        improved = true;
+                    }
+                }
+            }
+        }
+
+        return chrom;
+    }
+    */
+
     // ============================================================
     // GA メインループ
     // ============================================================
     GAResult run_ga(
         const std::vector<Landmark>& landmarks,
         const PathCache& path_cache,
-        long long                    gate_node,
+        long long gate_node,
         RNG& rng)
     {
         const int N = static_cast<int>(landmarks.size());
 
-        // ------------------------------------------------------------
-        // ランドマーク数 N に応じた世代数 (n_gen) の設定
-        // ------------------------------------------------------------
+        // 総世代数の算出
         const double SCALE_FACTOR = 30.0;
         const int n_gen = BASE_N_GEN + static_cast<int>(SCALE_FACTOR * std::sqrt(N));
-        // ------------------------------------------------------------
-        //  n_gen に応じた各手法の切り替え閾値の計算
-        // ------------------------------------------------------------
+
+        // 手法切り替え世代の算出
         const int select_switch_gen = static_cast<int>(n_gen * RATIO_SELECT_SWITCH);
         const int order_switch_gen_1 = static_cast<int>(n_gen * RATIO_ORDER_SWITCH_1);
         const int order_switch_gen_2 = static_cast<int>(n_gen * RATIO_ORDER_SWITCH_2);
@@ -409,16 +472,26 @@ namespace orienteering {
         const int t_switch_1 = static_cast<int>(n_gen * RATIO_TOURNAMENT_SWITCH_1);
         const int t_switch_2 = static_cast<int>(n_gen * RATIO_TOURNAMENT_SWITCH_2);
 
-        // 突然変異率（ビット反転は 1/N に動的調整）
+        // 突然変異率の設定
         const double prob_bit = 1.0 / static_cast<double>(N);
         const double prob_swap = 1.0 / static_cast<double>(MAX_CONTROLS);
 
+        /*
+        // 山登り法の設定値
+        const double TOP_RATIO_HC = 0.02;
+        const int TOP_K_HC = std::max(1, static_cast<int>(POP_SIZE * TOP_RATIO_HC));
+        const int HC_INTERVAL = 10;
+        const int HC_MAX_EVALS = 150;
+        */
+
+        // 初期集団の生成
         std::vector<Chromosome> population;
         population.reserve(POP_SIZE);
         for (int i = 0; i < POP_SIZE; ++i) {
             population.push_back(create_random_chromosome(N, rng));
         }
 
+        // 初期個体の評価
         std::vector<double> fitnesses(POP_SIZE);
         for (int i = 0; i < POP_SIZE; ++i) {
             fitnesses[i] = evaluate(population[i], landmarks, path_cache, gate_node).fitness;
@@ -427,27 +500,36 @@ namespace orienteering {
         std::vector<double> best_history;
         best_history.reserve(n_gen);
 
+        // 世代交代ループ
         for (int gen = 1; gen <= n_gen; ++gen) {
             std::vector<Chromosome> next_pop;
             next_pop.reserve(POP_SIZE);
 
-            // エリート保存
-            int elite_idx = static_cast<int>(
-                std::min_element(fitnesses.begin(), fitnesses.end()) - fitnesses.begin());
-            next_pop.push_back(population[elite_idx]);
+            // エリート数の計算（POP_SIZE の 1% 、最低でも 1 個体）
+            int elite_count = std::max(1, static_cast<int>(POP_SIZE * 0.01));
 
+            // 適応度順にインデックスをソート
+            std::vector<int> sorted_indices(POP_SIZE);
+            std::iota(sorted_indices.begin(), sorted_indices.end(), 0);
+            std::partial_sort(sorted_indices.begin(),
+                sorted_indices.begin() + elite_count,
+                sorted_indices.end(),
+                [&fitnesses](int a, int b) { return fitnesses[a] < fitnesses[b]; });
+
+            // 上位 1% のエリート個体を無条件で次世代へコピー
+            for (int e = 0; e < elite_count; ++e) {
+                next_pop.push_back(population[sorted_indices[e]]);
+            }
+            // 次世代個体の生成
             while (static_cast<int>(next_pop.size()) < POP_SIZE) {
-                // 親選択（動的閾値を渡す）
                 const Chromosome& p1 = select_parent(population, fitnesses, gen, t_switch_1, t_switch_2, rng);
                 const Chromosome& p2 = select_parent(population, fitnesses, gen, t_switch_1, t_switch_2, rng);
 
-                // 交叉（動的閾値を渡す）
                 auto children = crossover(p1, p2, N, gen,
                     select_switch_gen,
                     order_switch_gen_1,
                     order_switch_gen_2, rng);
 
-                // 突然変異
                 mutate(children.first, N, prob_bit, prob_swap, rng);
                 mutate(children.second, N, prob_bit, prob_swap, rng);
 
@@ -459,16 +541,33 @@ namespace orienteering {
 
             population = std::move(next_pop);
 
+            // 全個体の評価
             for (int i = 0; i < POP_SIZE; ++i) {
                 fitnesses[i] = evaluate(population[i], landmarks, path_cache, gate_node).fitness;
             }
+            /*
+            // 山登り法の実行領域
+            if (gen % HC_INTERVAL == 0 || gen == n_gen) {
+                std::vector<int> sorted_indices(POP_SIZE);
+                std::iota(sorted_indices.begin(), sorted_indices.end(), 0);
+                std::sort(sorted_indices.begin(), sorted_indices.end(),
+                    [&fitnesses](int a, int b) { return fitnesses[a] < fitnesses[b]; });
 
+                for (int k = 0; k < TOP_K_HC; ++k) {
+                    int idx = sorted_indices[k];
+                    population[idx] = hill_climbing(population[idx], landmarks, path_cache, gate_node, HC_MAX_EVALS);
+                    fitnesses[idx] = evaluate(population[idx], landmarks, path_cache, gate_node).fitness;
+                }
+            }
+            */
+            // 最良適応度の記録と出力
             double best = *std::min_element(fitnesses.begin(), fitnesses.end());
             best_history.push_back(best);
 
             std::cout << "  [世代 " << gen << "/" << n_gen << "]  best_fitness = " << best << std::endl;
         }
 
+        // 最終結果の抽出
         int best_idx = static_cast<int>(
             std::min_element(fitnesses.begin(), fitnesses.end()) - fitnesses.begin());
 

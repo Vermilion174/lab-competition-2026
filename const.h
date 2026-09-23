@@ -41,7 +41,7 @@ constexpr double W_ROUTE = 0.15;
 // GA のハイパーパラメータ
 // ============================================================
 constexpr int    POP_SIZE   = 200;     // 個体数
-constexpr int    BASE_N_GEN = 100;    // 基準世代数（デフォルト値）
+constexpr int    BASE_N_GEN = 100;    // 世代数（デフォルト値）
 constexpr double PROB_BIT   = 0.02;    // 選択パートのビット反転確率
 constexpr double PROB_SWAP  = 0.10;    // 順序パートのスワップ確率
 
@@ -58,13 +58,22 @@ constexpr double RATIO_SELECT_SWITCH = 0.4;
 constexpr double RATIO_ORDER_SWITCH_1 = 0.8;
 constexpr double RATIO_ORDER_SWITCH_2 = 1.0;
 
-// 動的トーナメントサイズの切り替え割合 (3段階)
+// 動的トーナメントサイズの切り替え割合
 constexpr double RATIO_TOURNAMENT_SWITCH_1 = 0.40;
 constexpr double RATIO_TOURNAMENT_SWITCH_2 = 0.80;
 
 constexpr int TOURNAMENT_SIZE_1 = 2; // 序盤：低淘汰圧（多様性保持）
 constexpr int TOURNAMENT_SIZE_2 = 4; // 中盤：中淘汰圧（バランス）
 constexpr int TOURNAMENT_SIZE_3 = 5; // 終盤：高淘汰圧（高速収束）
+
+/*
+// ============================================================
+// 山登り法（局所探索）パラメータ
+// ============================================================
+constexpr double TOP_RATIO_HC = 0.05;  // 適用対象とする上位個体の割合 (5%)
+constexpr int    HC_INTERVAL = 5;     // 何世代ごとに実行するか
+constexpr int    HC_MAX_EVALS = 150;    // 1個体・1回あたりの最大評価（改善試行）回数
+*/
 
 // ============================================================
 // 物理定数
