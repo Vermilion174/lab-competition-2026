@@ -1,4 +1,4 @@
-#ifndef GA_H
+﻿#ifndef GA_H
 #define GA_H
 
 #include "csv_loader.h"
@@ -8,6 +8,7 @@
 #include <random>
 #include <utility>
 #include <vector>
+#include <cmath>
 
 namespace orienteering {
 
@@ -35,6 +36,75 @@ std::pair<Chromosome, Chromosome> crossover(
 
 // 突然変異（選択パート：ビット反転 / 順序パート：2点スワップ）
 void mutate(Chromosome& chromosome, int N, RNG& rng);
+
+
+// ============================================================
+//  交叉（Crossover）関連の関数宣言
+// ============================================================
+
+// --- 選択パートの交叉アルゴリズム ---
+void uniform_crossover_selection(
+    const Chromosome& p1,
+    const Chromosome& p2,
+    int               N,
+    RNG& rng,
+    Chromosome& c1_out,
+    Chromosome& c2_out);
+
+void one_point_crossover_selection(
+    const Chromosome& p1,
+    const Chromosome& p2,
+    int               N,
+    RNG& rng,
+    Chromosome& c1_out,
+    Chromosome& c2_out);
+
+// --- 順序パートの交叉アルゴリズム ---
+void order_crossover(
+    const Chromosome& p1,
+    const Chromosome& p2,
+    int               N,
+    RNG& rng,
+    Chromosome& c1_out,
+    Chromosome& c2_out);
+
+void cycle_crossover(
+    const Chromosome& p1,
+    const Chromosome& p2,
+    int               N,
+    Chromosome& c1_out,
+    Chromosome& c2_out);
+
+void subtour_exchange_crossover(
+    const Chromosome& p1,
+    const Chromosome& p2,
+    int               N,
+    RNG& rng,
+    Chromosome& c1_out,
+    Chromosome& c2_out);
+
+// --- 交叉メイン関数 ---
+std::pair<Chromosome, Chromosome> crossover(
+    const Chromosome& parent1,
+    const Chromosome& parent2,
+    int               N,
+    int               current_gen,
+    int               select_switch_gen,
+    int               order_switch_gen_1,
+    int               order_switch_gen_2,
+    RNG& rng);
+
+// ============================================================
+//  突然変異（Mutation）関連の関数宣言
+// ============================================================
+
+void mutate(
+    Chromosome& chromosome,
+    int         N,
+    double      prob_bit,
+    double      prob_swap,
+    RNG& rng);
+
 
 // ============================================================
 // GA メインループ

@@ -144,7 +144,7 @@ int main() {
 
         std::cout << "\n遺伝的アルゴリズムを実行中..." << std::endl;
         std::cout << "  個体数: " << POP_SIZE
-                  << " / 世代数: " << N_GEN << std::endl;
+                  << " / 世代数: " <<BASE_N_GEN << std::endl;
 
         RNG rng(RANDOM_SEED);
 
