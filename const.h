@@ -6,80 +6,50 @@
 
 namespace orienteering {
 
-// ============================================================
-// ファイル・ディレクトリ
-// ============================================================
-inline const std::string DATA_DIR   = "input";    // 入力データのフォルダ
-inline const std::string OUTPUT_DIR = "output";   // 出力ファイルのフォルダ
+    // ファイル・ディレクトリ
+    inline const std::string DATA_DIR = "input";
+    inline const std::string OUTPUT_DIR = "output";
 
-// ============================================================
-// コントロール数の制約（コンペ課題で指定）
-// ============================================================
-constexpr int MIN_CONTROLS = 6;
-constexpr int MAX_CONTROLS = 12;
+    // コントロール数制約
+    constexpr int MIN_CONTROLS = 6;
+    constexpr int MAX_CONTROLS = 12;
 
-// ============================================================
-// 目的関数パラメータ（コンペ課題 表1）
-// ============================================================
-constexpr int    Q_TARGET     = 8;        // 目標コントロール数
-constexpr double D_MIN        = 150.0;    // 近すぎる距離の閾値（m）
-constexpr double T_TARGET     = 60.0;     // 目標所要時間（分）
-constexpr double WALK_SPEED   = 4020.0;   // 平地の歩行速度（m/時）
-constexpr double CLIMB_SPEED  = 300.0;    // 登り坂の速度換算値（m/時）
-constexpr double ROUTE_TARGET = 50.0;     // 累積登り高低差の許容値（m）
-constexpr double PENALTY      = DBL_MAX;   // 無効解へのペナルティ（実値では到達し得ないセンチネル）
+    // 目的関数パラメータ
+    constexpr int    Q_TARGET = 8;        // 目標コントロール数
+    constexpr double D_MIN = 150.0;    // 最低距離閾値
+    constexpr double T_TARGET = 60.0;     // 目標時間
+    constexpr double WALK_SPEED = 4020.0;   // 平地速度
+    constexpr double CLIMB_SPEED = 300.0;    // 登り速度
+    constexpr double ROUTE_TARGET = 50.0;     // 許容登り高低差
+    constexpr double PENALTY = DBL_MAX;  // 無効解ペナルティ
 
-// ============================================================
-// 重み設定（4指標を重み付き和で集約。合計 1.0）
-// ============================================================
-constexpr double W_MAP   = 0.50;
-constexpr double W_DIST  = 0.10;
-constexpr double W_TIME  = 0.25;
-constexpr double W_ROUTE = 0.15;
+    // 指標重み
+    constexpr double W_MAP = 0.50;
+    constexpr double W_DIST = 0.10;
+    constexpr double W_TIME = 0.25;
+    constexpr double W_ROUTE = 0.15;
 
-// ============================================================
-// GA のハイパーパラメータ
-// ============================================================
-constexpr int    POP_SIZE   = 200;     // 個体数
-constexpr int    BASE_N_GEN = 100;    // 世代数（デフォルト値）
-constexpr double PROB_BIT   = 0.02;    // 選択パートのビット反転確率
-constexpr double PROB_SWAP  = 0.10;    // 順序パートのスワップ確率
+    // GAパラメータ
+    constexpr int          POP_SIZE = 200; // 個体数
+    constexpr int          BASE_N_GEN = 100; // 基本世代数
+    constexpr double       PROB_BIT = 0.02;// ビット反転確率
+    constexpr double       PROB_SWAP = 0.10;// スワップ変異確率
+    constexpr unsigned int RANDOM_SEED = 42;  // 乱数シード
 
-constexpr unsigned int RANDOM_SEED = 42;
+    // 切り替え割合
+    constexpr double RATIO_SELECT_SWITCH = 0.70; // 選択パート交叉切り替え
+    constexpr double RATIO_ORDER_SWITCH = 0.80; // 順序パート交叉切り替え
+    constexpr double RATIO_TOURNAMENT_SWITCH_1 = 0.40; // トーナメントサイズ切り替え1
+    constexpr double RATIO_TOURNAMENT_SWITCH_2 = 0.70; // トーナメントサイズ切り替え2
 
-// ============================================================
-// 切り替えタイミング用定数（総世代数に対する割合）
-// ============================================================
+    // トーナメントサイズ
+    constexpr int TOURNAMENT_SIZE_1 = 2; // 序盤
+    constexpr int TOURNAMENT_SIZE_2 = 4; // 中盤
+    constexpr int TOURNAMENT_SIZE_3 = 5; // 終盤
 
-// 選択パートの交叉手法切り替え割合
-constexpr double RATIO_SELECT_SWITCH = 0.4;
-
-// 順序パートの交叉手法切り替え割合
-constexpr double RATIO_ORDER_SWITCH_1 = 0.8;
-constexpr double RATIO_ORDER_SWITCH_2 = 1.0;
-
-// 動的トーナメントサイズの切り替え割合
-constexpr double RATIO_TOURNAMENT_SWITCH_1 = 0.40;
-constexpr double RATIO_TOURNAMENT_SWITCH_2 = 0.80;
-
-constexpr int TOURNAMENT_SIZE_1 = 2; // 序盤：低淘汰圧（多様性保持）
-constexpr int TOURNAMENT_SIZE_2 = 4; // 中盤：中淘汰圧（バランス）
-constexpr int TOURNAMENT_SIZE_3 = 5; // 終盤：高淘汰圧（高速収束）
-
-/*
-// ============================================================
-// 山登り法（局所探索）パラメータ
-// ============================================================
-constexpr double TOP_RATIO_HC = 0.05;  // 適用対象とする上位個体の割合 (5%)
-constexpr int    HC_INTERVAL = 5;     // 何世代ごとに実行するか
-constexpr int    HC_MAX_EVALS = 150;    // 1個体・1回あたりの最大評価（改善試行）回数
-*/
-
-// ============================================================
-// 物理定数
-// ============================================================
-constexpr double PI                = 3.14159265358979323846;
-constexpr double METERS_PER_DEGREE = 111320.0;  // 緯度1度あたりのメートル
+    // 物理定数
+    constexpr double PI = 3.14159265358979323846;
+    constexpr double METERS_PER_DEGREE = 111320.0; // 緯度1度あたりの距離
 
 } // namespace orienteering
 

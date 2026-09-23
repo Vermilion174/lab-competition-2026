@@ -1,4 +1,48 @@
-＜備忘録＞
+
+    // 動的切り替え交叉
+    std::pair<Chromosome, Chromosome> crossover(
+        const Chromosome& parent1,
+        const Chromosome& parent2,
+        int               N,
+        int               current_gen,
+        int               select_switch_gen,
+        int               order_switch_gen_1,
+        int               order_switch_gen_2,
+        RNG& rng)
+    {
+        Chromosome c1_select, c2_select;
+        if (current_gen < select_switch_gen) {
+            uniform_crossover_selection(parent1, parent2, N, rng, c1_select, c2_select);
+        }
+        else {
+            one_point_crossover_selection(parent1, parent2, N, rng, c1_select, c2_select);
+        }
+
+        Chromosome c1_order, c2_order;
+        if (current_gen < order_switch_gen_1) {
+            order_crossover(parent1, parent2, N, rng, c1_order, c2_order);
+        }
+        else if (current_gen < order_switch_gen_2) {
+            cycle_crossover(parent1, parent2, N, c1_order, c2_order);
+        }
+        else {
+            subtour_exchange_crossover(parent1, parent2, N, rng, c1_order, c2_order);
+        }
+
+        Chromosome c1(N + MAX_CONTROLS);
+        Chromosome c2(N + MAX_CONTROLS);
+
+        for (int i = 0; i < N; ++i) {
+            c1[i] = c1_select[i];
+            c2[i] = c2_select[i];
+        }
+        for (int i = 0; i < MAX_CONTROLS; ++i) {
+            c1[N + i] = c1_order[N + i];
+            c2[N + i] = c2_order[N + i];
+        }
+
+        return { c1, c2 };
+    }
 
 
 試行回数変更はconst.hの世代数（N_GEN） 43行目

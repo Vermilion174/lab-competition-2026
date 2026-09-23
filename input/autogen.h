@@ -5,7 +5,7 @@
 #include <random>
 
 // 生成するlandmarkの個数
-constexpr int LANDMARK = 500;
+constexpr int LANDMARK = 113;
 constexpr int FEATURE = 17;
 constexpr int NODE = 2268;
 

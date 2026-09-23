@@ -75,14 +75,6 @@ void cycle_crossover(
     Chromosome& c1_out,
     Chromosome& c2_out);
 
-void subtour_exchange_crossover(
-    const Chromosome& p1,
-    const Chromosome& p2,
-    int               N,
-    RNG& rng,
-    Chromosome& c1_out,
-    Chromosome& c2_out);
-
 // --- 交叉メイン関数 ---
 std::pair<Chromosome, Chromosome> crossover(
     const Chromosome& parent1,
