@@ -1,4 +1,4 @@
-# 進化計算コンペ2026　配布プログラム
+# 進化計算コンペ2026　
 
 ## ファイル構成
 
@@ -12,6 +12,8 @@ orienteering-cpp-test/
 ├── main.cpp           # エントリポイント・入出力
 ├── Makefile           # ビルド設定（コマンドラインから make で利用）
 ├── input/             # 入力 CSV ファイル
+│   ├── autogen.csv    # autogen.cppによって生成されたlandmarks.csvのダミー
+│   ├── autogen.cpp    # 任意個のコントロールを生成するプログラム
 │   ├── landmarks.csv
 │   ├── nodes.csv
 │   ├── edges.csv
@@ -64,5 +66,8 @@ orienteering-cpp-test/
 - 中身は空
 - 実行後、best_course.jsonとfitness_history.csvが作られる。
 
-
-`SetConsoleOutputCP(CP_UTF8)` で対策済み。それでも化ける場合は、実行前にコンソールで `chcp 65001` を実行する。
+### 主な変更点
+- 選択/順序パートの交叉方法を、試行回数（世代数）によって変更
+- 選択パート:一様交叉→一点交叉
+- 順序パート:順序交叉→循環交叉
+- 
